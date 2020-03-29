@@ -11,7 +11,7 @@
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 </head>
 
-<body onload="getMyAddress()">
+<body onload="getMyAddress(); reloadTable()">
     <img class="logo" src="./images/FirstResponseLogo.png" />
     <div class="container">
         <div class="first-responders-alert">
@@ -128,15 +128,17 @@
         }
 
         const refreshData = () => {
-            let x = 5;
+            // let x = 10;
             console.log("go again!")
             $('.alert').hide();
             $.getJSON("incidents.json", function (json) {
                 json.forEach((pair) => {
                     wc = pair[0].warningCode;
                     if (wc === 2 || wc === 3) {
+                        $('.alert').hide();
                         $('.first-responders').show();
                     } else if (wc === 1) {
+                        $('.alert').hide();
                         $('.user').show();
                     } else if (wc === 0) {
                         $('.alert').hide();
@@ -147,7 +149,7 @@
                 });
             });
             reloadTable();
-            setTimeout(refreshData, x * 1000);
+            // setTimeout(refreshData, x * 1000);
         }
         refreshData();
 
