@@ -2,11 +2,114 @@ pragma solidity ^0.5.0;
 
 contract SmartCity {
     string public appName;
-    uint public totalNumber = 0;
-  
+    uint public eventNumber = 0; // total number of detected event
+    // event status to keep track of the status of reward event
+    /*
+    enum explaination
+    No_Warning - There is no inicident now
+    Near_Close - Two objects are too close
+    Potential_Pedestrian_Injuries - Crash involved human, there is a chance that human injuries
+    Car_Crash - user approved the recent help (and issue been closed)
+    */
+    enum warningFlag { No_Warning, Near_Misses, Potential_Pedestrian_Injuries, Car_Crash}
+
+    struct BroadcastEvent {
+        uint256 eventID;    // tract event number
+        uint256 timestamp;  // timestamp
+        uint256 objectID;   // tract the object
+        uint256 objectXCor;     // object x corodinates
+        uint256 objectYCor;     // object y corodinates
+        uint256 mode;           // form of transportation
+        uint256 warningCode;    // warning code
+        warningFlag status;     // warning flag status
+    }
+
+    // mapping adress to BroadcastEvent - type public
+    // use uint256 => BroadcastEvent because one user can send multiple events
+    mapping(uint256 => BroadcastEvent) public BroadcastEvents;
+
+    // contract constructor
     constructor() public {
         appName = "SmartCity";
     }
 
+    /*
+    events decleration:
+    1. Broadcast Warning
+    2. Broadcast Intersection Warning
+    */
+
+    // broadcast warning event
+    event broadcastWarningEvent(
+        uint256 eventID,    // tract event number
+        uint256 timestamp,  // timestamp
+        uint256 objectID,   // tract the object
+        uint256 objectXCor,     // object x corodinates
+        uint256 objectYCor,     // object y corodinates
+        uint256 mode,           // form of transportation
+        warningFlag status      // warning flag status
+    ); 
+
+    // broadcast warning event
+    event broadcastIntersectionWarningEvent(
+        uint256 eventID,    // tract event number
+        uint256 timestamp,  // timestamp
+        address intersectionZip,        // example: V6T 1Z4
+        address intersectionLocation,   // example: UBC Bus Loop
+        warningFlag status      // warning flag status
+    ); 
+
+    event call911Event(
+        uint256 eventID,    // tract event number
+        uint256 timestamp,  // timestamp
+        address intersectionZip,        // example: V6T 1Z4
+        address intersectionLocation,   // example: UBC Bus Loop
+        warningFlag status      // warning flag status
+    );
+
+    // function declearation
+    // broadcast the warning msg to the network
+    function broadcastWarning(
+        uint256 _timestamp,  // timestamp
+        uint256 _objectID,   // tract the object
+        uint256 _objectXCor,     // object x corodinates
+        uint256 _objectYCor,     // object y corodinates
+        uint256 _mode,           // form of transportation
+        uint256 _warningCode     // warning code
+    ) public {
+        require(_timestamp  != 0, "Timestamp not equal to 0");
+        require(_objectID   != 0, "Object ID not equal to 0");
+        require(_objectXCor != 0, "Object X cordinates not equal to 0");
+        require(_objectYCor != 0, "Object Y cordinates not equal to 0");
+        require(_mode       != 0, "mode not equal to 0");
+
+        // TODO: only admin can call this function
+
+        // accumulate num
+        eventNumber++;
+
+        // save info
+        BroadcastEvents[eventNumber] = BroadcastEvent(
+            eventNumber,            // tract event number
+            _timestamp,             // timestamp
+            _objectID,              // tract the object
+            _objectXCor,            // object x corodinates
+            _objectYCor,            // object y corodinates
+            _mode,                  // form of transportation
+            _warningCode,
+            warningFlag(_warningCode)     // warning flag status
+        );
+
+        // broadcast to the network
+        emit broadcastWarningEvent(
+            BroadcastEvents[eventNumber].eventID,       // tract event number
+            BroadcastEvents[eventNumber].timestamp,     // timestamp
+            BroadcastEvents[eventNumber].objectID,      // tract the object
+            BroadcastEvents[eventNumber].objectXCor,    // object x corodinates
+            BroadcastEvents[eventNumber].objectYCor,    // object y corodinates
+            BroadcastEvents[eventNumber].mode,          // form of transportation
+            BroadcastEvents[eventNumber].status        // warning flag status
+        );
+    }
 
 }

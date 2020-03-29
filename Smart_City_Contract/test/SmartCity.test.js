@@ -23,5 +23,31 @@ contract(SmartCity,([deployer, seller, buyer])=>{
         })
     })
 
+     // create issue tests
+     describe('Testing Broadcast Warning', async () => {
+        let result;
+        let numRequests;
+
+        before(async () => {
+            result = await smartCity.broadcastWarning('123','1','123', '123', '1', '0',{ from: deployer })
+            numRequests = await smartCity.eventNumber()
+        })
+
+        // create a request
+        it('System should create a broadcast successfully', async () => {
+            assert.equal(numRequests, 1);
+            const event = result.logs[0].args;
+            console.log(event)
+            assert.equal(event.timestamp.toNumber(),    123, 'number of timestamp should be 123');
+            assert.equal(event.objectID.toNumber(),     1,   'objectID should be 1');
+            assert.equal(event.objectXCor.toNumber(),   123, 'objectXCor should be 123');
+            assert.equal(event.objectYCor.toNumber(),   123, 'objectYCor should be 123');
+            assert.equal(event.mode.toNumber(),         1,   'trasportation mode should be 1');
+            assert.equal(event.status,                  0,   'status should be 0')
+        })
+
+    })
+
+
     
 });
