@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Buyer Page</title>    
+        <link rel="stylesheet" type="text/css" href="test.css">    
+        <script src="../node_modules/web3/dist/web3.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script> 
+    </head>
+    <body onload="getMyAddress(); reloadTable()">
+        <div><label id="myaddr"></label></div>
+        <div>
+            <table id="eventtable">
+                <thead>
+                    <tr>
+                        <th>EventID</th>
+                        <th>Timestamp</th>
+                        <th>ObjectID</th>
+                        <th>ObjectXCor</th>
+                        <th>ObjectYCor</th>
+                        <th>Mode</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <div class="container">        
+            <h1>Send Data</h1>          
+            <label class="col-lg-2 control-label">Timestamp</label>
+                <input id="Timestamp" type="text">
+            <label class="col-lg-2 control-label">Object ID</label>
+                <input id="ObjectID" type="text">
+            <label class="col-lg-2 control-label">Object X Coordinates</label>
+                <input id="ObjectXCor" type="text">        
+            <label class="col-lg-2 control-label">Object Y Coordinates</label>
+                <input id="ObjectYCor" type="text">
+            <label class="col-lg-2 control-label">Mode</label>
+                <input id="Mode" type="text">                            
+            <label class="col-lg-2 control-label">Warning Code</label>
+                <input id="WarningCode" type="text">   
+            
+                <button id="button1">Send Msg </button>
+        </div>    
+       
+        <script>
+            const getMyAddress = async () => {
+                if (typeof web3 !== 'undefined') {
+                    web3 = new Web3(web3.currentProvider);
+                } else {
+                    // set the provider you want from Web3.providers
+                    web3 = new Web3(new Web3.providers.WebsocketProvider("ws://127.0.0.1:7545"));
+                }
+                let accounts = await web3.eth.getAccounts();
+                document.getElementById("myaddr").innerHTML="User Account: " + accounts[0];
+            }
+            
+            const reloadTable = async () => {
+                if (typeof web3 !== 'undefined') {
+                    web3 = new Web3(web3.currentProvider);
+                } else {
+                    // set the provider you want from Web3.providers
+                    web3 = new Web3(new Web3.providers.WebsocketProvider("ws://127.0.0.1:7545"));
+                }
+
+                const networkId = await web3.eth.net.getId();
+                const smartcityJson = await $.getJSON('../src/abis/SmartCity.json')
+                const deployedSmartCity = new web3.eth.Contract(
+                    smartcityJson.abi,
+                    smartcityJson.networks[networkId].address
+                );
+                const totalEventNumber = await deployedSmartCity.methods.eventNumber().call();
+                let events = [];
+                for (var i = 1;i<= totalEventNumber;i++) {
+                    const event = await deployedSmartCity.methods.BroadcastEvents(i).call();
+                    events = [...events, event];
+                }
+
+                var table = $('#eventtable');
+                table.find("tbody tr").remove();
+                events.forEach(function (event) {
+                    table.append("<tr><td>" + event.eventID + "</td><td>" + event.timestamp + "</td><td>" + event.objectID + "</td><td>" + event.objectXCor + "</td><td>" + event.objectYCor + "</td><td>" + event.mode + "</td><td>" + event.warningCode + "</td><td>"+ event.status + "</td></tr>");
+                });
+            };
+
+            $("#button1").click(async () => {
+                if (typeof web3 !== 'undefined') {
+                    web3 = new Web3(web3.currentProvider);
+                } else {
+                    // Note: please use WebsocketProvider if you want to subscribe events
+                    web3 = new Web3(new Web3.providers.WebsocketProvider("ws://127.0.0.1:7545"));
+                }
+
+                const timestamp = $("#Timestamp").val();
+                const objectID = $("#ObjectID").val();
+                const objectXCor = $("#ObjectXCor").val();
+                const objectYCor = $("#ObjectYCor").val();
+                const mode = $("#Mode").val();
+                const warningCode = $("#WarningCode").val();
+                let accounts = await web3.eth.getAccounts();
+                const deployerAccount = accounts[0];
+
+                try {
+                    await web3.eth.personal.unlockAccount(deployerAccount, '', 1000);
+                } catch (error) {
+                    console.log(error);
+                }
+                const networkId = await web3.eth.net.getId();
+                const SmartCityJson = await $.getJSON('../src/abis/SmartCity.json')
+                const deployedSmartCity = new web3.eth.Contract(
+                    SmartCityJson.abi,
+                    SmartCityJson.networks[networkId].address
+                );
+                console.log(deployedSmartCity)
+                //Estimate the gas consumption
+                const gasAmount = await deployedSmartCity.methods.broadcastWarning(timestamp,objectID, objectXCor,objectYCor,mode, warningCode).estimateGas({from: deployerAccount})
+                try {
+                    const receipt = await deployedSmartCity.methods.broadcastWarning(timestamp,objectID, objectXCor,objectYCor,mode, warningCode).send({from: deployerAccount, gas: gasAmount})
+                    console.log("Receipt");
+                    console.log(receipt);
+                    const myEventID = receipt.events.broadcastWarningEvent.returnValues.eventID.toString();
+                    const message = "Event " + myEventID + " successfully.";
+                    console.log(message);
+                    alert(message);
+                } catch (error) {
+                    console.log('Transaction Error: ');
+                    console.log(error);
+                }
+            });
+        </script>
+    </body>
+</html>

@@ -1,2 +1,12 @@
 
 .DS_Store
+~/
+
+EthbayDappHtmlAndEvents/node_modules
+EthbayDappHtmlAndEvents/src/abis
+
+EthbayDappReact/node_modules
+EthbayDappReact/src/abis
+
+Smart_City_Contract/node_modules
+Smart_City_Contract/src/abis
