@@ -65,6 +65,12 @@ p {
     height: 130px;
 }
 
+.alert {
+    margin-top: 20px;
+    width: 80px;
+    height: 80px;
+}
+
 label {
     display: block;
     margin-bottom: 10px;

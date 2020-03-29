@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,6 +16,7 @@
         <div class="first-responders-alert">
             <p>ALERT:</p>
             <p>First Responders</p>
+            <img class="alert first-responders" src="./images/alert.png"/>
         </div>
 
         <div class="blockchain">
@@ -45,6 +45,7 @@
         <div class="user-alert">
             <p>WARNING:</p>
             <p>Users</p>
+            <img class="alert user" src="./images/alert.png"/>
         </div>
     </div>
 
@@ -127,8 +128,16 @@
 
         const refreshData = () => {
             // let x = 1;
+            $('.alert').hide();
             $.getJSON("incidents.json", function (json) {
                 json.forEach((pair) => {
+                    if (pair[0].warningCode === 2 || pair[0].warningCode === 3) {
+                        $('.first-responders').show();
+                    } else if (pair[0].warningCode === 1) {
+                        $('.user').show();
+                    } else if (pair[0].warningCode === 0) {
+                        $('.alert').hide();
+                    }
                     pair.forEach((each) => {
                         addValues(each.objectXCor, each.objectYCor, each.timestamp, each.mode, each.warningCode);
                     })
