@@ -12,42 +12,44 @@
 </head>
 
 <body onload="getMyAddress()">
-    <div><label id="myaddr"></label></div>
-    <div>
-        <table id="eventtable">
-            <thead>
-                <tr>
-                    <th>EventID</th>
-                    <th>Timestamp</th>
-                    <th>ObjectID</th>
-                    <th>ObjectXCor</th>
-                    <th>ObjectYCor</th>
-                    <th>Mode</th>
-                    <th>Warning Code</th>
-                </tr>
-            </thead>
-        </table>
-    </div>
+    <img class="logo" src="./images/FirstResponseLogo.png" />
     <div class="container">
-        <h1>Send Data</h1>
-        <label class="col-lg-2 control-label">Timestamp</label>
-        <input id="Timestamp" type="text">
-        <label class="col-lg-2 control-label">Object ID</label>
-        <input id="ObjectID" type="text">
-        <label class="col-lg-2 control-label">Object X Coordinates</label>
-        <input id="ObjectXCor" type="text">
-        <label class="col-lg-2 control-label">Object Y Coordinates</label>
-        <input id="ObjectYCor" type="text">
-        <label class="col-lg-2 control-label">Mode</label>
-        <input id="Mode" type="text">
-        <label class="col-lg-2 control-label">Warning Code</label>
-        <input id="WarningCode" type="text">
+        <div class="first-responders-alert">
+            <p>ALERT:</p>
+            <p>First Responders</p>
+        </div>
 
-        <button id="button1">Send Msg </button>
+        <div class="blockchain">
+            <div class="blockchain-title">
+                <div>
+                    <img class="ethereum-logo" src="./images/EthereumLogo.png" />
+                </div>
+                <div>
+                    <div class="event-table">
+                        <table id="eventtable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Timestamp</th>
+                                    <th>X-Coord</th>
+                                    <th>Y-Coord</th>
+                                    <th>Mode of Transportation</th>
+                                    <th>Warning Code</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="user-alert">
+            <p>WARNING:</p>
+            <p>Users</p>
+        </div>
     </div>
 
     <script>
-        const reloadTable = async (x, y, time, mode, wc) => {
+        const reloadTable = async () => {
             if (typeof web3 !== 'undefined') {
                 web3 = new Web3(web3.currentProvider);
             } else {
@@ -55,9 +57,9 @@
                 web3 = new Web3(new Web3.providers.WebsocketProvider("ws://127.0.0.1:7545"));
             }
 
-            let networkId = await web3.eth.net.getId();
+            const networkId = await web3.eth.net.getId();
             const smartcityJson = await $.getJSON('../src/abis/SmartCity.json')
-            let deployedSmartCity = new web3.eth.Contract(
+            const deployedSmartCity = new web3.eth.Contract(
                 smartcityJson.abi,
                 smartcityJson.networks[networkId].address
             );
@@ -68,11 +70,13 @@
                 events = [...events, event];
             }
 
-
             var table = $('#eventtable');
             table.find("tbody tr").remove();
             events.forEach(function (event) {
-                table.append("<tr><td>" + event.eventID + "</td><td>" + event.timestamp + "</td><td>" + event.objectID + "</td><td>" + event.objectXCor + "</td><td>" + event.objectYCor + "</td><td>" + event.mode + "</td><td>" + event.warningCode + "</td></tr>");
+                let mode = "";
+                if (event.mode == 1) mode = "car";
+                else if (event.mode == 2) mode = "pedestrian";
+                table.append("<tr><td>" + event.eventID + "</td><td>" + event.timestamp + "</td><td>" + event.objectXCor + "</td><td>" + event.objectYCor + "</td><td>" + mode + "</td><td>" + event.warningCode + "</td></tr>");
             });
 
             if (typeof web3 !== 'undefined') {
@@ -81,7 +85,9 @@
                 // Note: please use WebsocketProvider if you want to subscribe events
                 web3 = new Web3(new Web3.providers.WebsocketProvider("ws://127.0.0.1:7545"));
             }
+        }
 
+        const addValues = async (x, y, time, mode, wc) => {
             const timestamp = time;
             const objectID = 1;
             const objectXCor = x;
@@ -96,9 +102,9 @@
             } catch (error) {
                 console.log(error);
             }
-            networkId = await web3.eth.net.getId();
-            let SmartCityJson = await $.getJSON('../src/abis/SmartCity.json')
-            deployedSmartCity = new web3.eth.Contract(
+            const networkId = await web3.eth.net.getId();
+            const SmartCityJson = await $.getJSON('../src/abis/SmartCity.json')
+            const deployedSmartCity = new web3.eth.Contract(
                 SmartCityJson.abi,
                 SmartCityJson.networks[networkId].address
             );
@@ -111,68 +117,24 @@
                 // console.log(receipt);
                 const myEventID = receipt.events.broadcastWarningEvent.returnValues.eventID.toString();
                 const message = "Event " + myEventID + " successfully.";
-                // console.log(message);
+                console.log(message);
                 // alert(message);
             } catch (error) {
                 // console.log('Transaction Error: ');
                 // console.log(error);
             }
-        };
-
-        // $("#button1").click(async () => {
-        //     if (typeof web3 !== 'undefined') {
-        //         web3 = new Web3(web3.currentProvider);
-        //     } else {
-        //         // Note: please use WebsocketProvider if you want to subscribe events
-        //         web3 = new Web3(new Web3.providers.WebsocketProvider("ws://127.0.0.1:7545"));
-        //     }
-
-        //     const timestamp = $("#Timestamp").val();
-        //     const objectID = $("#ObjectID").val();
-        //     const objectXCor = $("#ObjectXCor").val();
-        //     const objectYCor = $("#ObjectYCor").val();
-        //     const mode = $("#Mode").val();
-        //     let accounts = await web3.eth.getAccounts();
-        //     const deployerAccount = accounts[0];
-
-        //     try {
-        //         await web3.eth.personal.unlockAccount(deployerAccount, '', 1000);
-        //     } catch (error) {
-        //         console.log(error);
-        //     }
-        //     const networkId = await web3.eth.net.getId();
-        //     const SmartCityJson = await $.getJSON('../src/abis/SmartCity.json')
-        //     const deployedSmartCity = new web3.eth.Contract(
-        //         SmartCityJson.abi,
-        //         SmartCityJson.networks[networkId].address
-        //     );
-        //     console.log(deployedSmartCity)
-        //     //Estimate the gas consumption
-        //     const gasAmount = await deployedSmartCity.methods.broadcastWarning(timestamp, objectID, objectXCor, objectYCor, mode, warningCode).estimateGas({ from: deployerAccount })
-        //     try {
-        //         const receipt = await deployedSmartCity.methods.broadcastWarning(timestamp, objectID, objectXCor, objectYCor, mode, warningCode).send({ from: deployerAccount, gas: gasAmount })
-        //         console.log("Receipt");
-        //         console.log(receipt);
-        //         const myEventID = receipt.events.broadcastWarningEvent.returnValues.eventID.toString();
-        //         const message = "Event " + myEventID + " successfully.";
-        //         console.log(message);
-        //         alert(message);
-        //     } catch (error) {
-        //         console.log('Transaction Error: ');
-        //         console.log(error);
-        //     }
-        // });
+        }
 
         const refreshData = () => {
             // let x = 1;
             $.getJSON("incidents.json", function (json) {
                 json.forEach((pair) => {
                     pair.forEach((each) => {
-                        reloadTable(each.objectXCor, each.objectYCor, each.timestamp, each.mode, each.warningCode);
+                        addValues(each.objectXCor, each.objectYCor, each.timestamp, each.mode, each.warningCode);
                     })
                 });
             });
-            console.log("refreshing each time as expected");
+            reloadTable();
             // setTimeout(refreshData, x * 1000);
         }
         refreshData();

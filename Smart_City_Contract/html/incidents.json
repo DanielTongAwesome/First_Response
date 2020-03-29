@@ -9,7 +9,7 @@
         },
         {
             "timestamp": 25662,
-            "mode": 2,
+            "mode": 1,
             "objectXCor": 707,
             "objectYCor": 353,
             "warningCode": 1
@@ -18,7 +18,7 @@
     [
         {
             "timestamp": 25669,
-            "mode": 2,
+            "mode": 1,
             "objectXCor": 338,
             "objectYCor": 125,
             "warningCode": 2
