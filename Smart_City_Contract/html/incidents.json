@@ -21,14 +21,14 @@
             "mode": 1,
             "objectXCor": 338,
             "objectYCor": 125,
-            "warningCode": 3
+            "warningCode": 2
         },
         {
             "timestamp": 25669,
             "mode": 2,
             "objectXCor": 332,
             "objectYCor": 118,
-            "warningCode": 3
+            "warningCode": 2
         }
     ]
 ]
