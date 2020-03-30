@@ -1,22 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Buyer Page</title>
+    <title>First Response</title>
     <link rel="stylesheet" type="text/css" href="test.css">
     <script src="../node_modules/web3/dist/web3.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 </head>
 
-<body onload="getMyAddress()">
+<body onload="getMyAddress(); reloadTable()">
     <img class="logo" src="./images/FirstResponseLogo.png" />
     <div class="container">
         <div class="first-responders-alert">
             <p>ALERT:</p>
             <p>First Responders</p>
-            <img class="alert first-responders" src="./images/alert.png"/>
+            <img class="alert first-responders" src="./images/alert.png" />
         </div>
 
         <div class="blockchain">
@@ -45,7 +46,7 @@
         <div class="user-alert">
             <p>WARNING:</p>
             <p>Users</p>
-            <img class="alert user" src="./images/alert.png"/>
+            <img class="alert user" src="./images/alert.png" />
         </div>
     </div>
 
@@ -127,15 +128,19 @@
         }
 
         const refreshData = () => {
-            // let x = 1;
+            // let x = 10;
+            console.log("go again!")
             $('.alert').hide();
             $.getJSON("incidents.json", function (json) {
                 json.forEach((pair) => {
-                    if (pair[0].warningCode === 2 || pair[0].warningCode === 3) {
+                    wc = pair[0].warningCode;
+                    if (wc === 2 || wc === 3) {
+                        $('.alert').hide();
                         $('.first-responders').show();
-                    } else if (pair[0].warningCode === 1) {
+                    } else if (wc === 1) {
+                        $('.alert').hide();
                         $('.user').show();
-                    } else if (pair[0].warningCode === 0) {
+                    } else if (wc === 0) {
                         $('.alert').hide();
                     }
                     pair.forEach((each) => {
