@@ -1,1 +1,1 @@
-# Smart-Citiy-5G-Hackathon
+# Smart-City-5G-Hackathon
