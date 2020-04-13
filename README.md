@@ -1,1 +1,0 @@
-# Smart-Citiy-5G-Hackathon
