@@ -1,0 +1,37 @@
+body{
+    background-color: #F0F0F0;
+    padding: 1em;
+    font-family: 'Arial';
+}
+
+.container {
+    width: 100%;
+    margin: 0 auto;
+}
+label {
+    display: block;
+    margin-bottom: 10px;
+}
+input {
+    padding: 10px;
+    width: 50%;
+    margin-bottom: 1em;
+}
+button {
+    margin: 1em 0;
+    padding: 1em 2em;
+    display: block;
+}
+table {
+    border: 1px solid black;
+    border-collapse: collapse;
+    width: 50%;
+  }
+  
+  th, td {
+    text-align: center;
+    padding: 8px;
+  }
+  
+  tr:nth-child(even) {background-color: #ffffff;}
+  tr:nth-child(odd) {background-color: #f0f0f0;}

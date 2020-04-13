@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Seller Page</title>    
+        <link rel="stylesheet" type="text/css" href="test.css">    
+        <script src="../node_modules/web3/dist/web3.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script> 
+    </head>
+    <body onload="getMyAddress()">
+        <div><label id="myaddr"></label></div>
+        <div class="container">        
+            <h1>Add Item</h1>          
+            <label class="col-lg-2 control-label">Item Name</label>
+                <!-- Comment: id="itemname" is used to access user's input for itemName -->
+                <input id="itemname" type="text">   
+            <label class="col-lg-2 control-label">Item Price (in Ether)</label>
+                <!-- Comment: id="itemprice" is used to access user's input for itemPrice -->
+                <input id="itemprice" type="text">            
+            <button id="button1">Add Item </button>
+        </div>    
+        <script>
+            const getMyAddress = async () => {
+                if (typeof web3 !== 'undefined') {
+                    web3 = new Web3(web3.currentProvider);
+                } else {
+                    // Note: please use WebsocketProvider if you want to subscribe events
+                    web3 = new Web3(new Web3.providers.WebsocketProvider("ws://127.0.0.1:7545"));
+                }
+                let accounts = await web3.eth.getAccounts();
+                document.getElementById("myaddr").innerHTML="Seller Account: " + accounts[0];
+            }
+            
+            $("#button1").click(async () => {
+                if (typeof web3 !== 'undefined') {
+                    web3 = new Web3(web3.currentProvider);
+                } else {
+                    web3 = new Web3(new Web3.providers.WebsocketProvider("ws://127.0.0.1:7545"));
+                }
+                //See? I am using the id you saw above to access the content of user's input
+                const itemName = $("#itemname").val();
+                const itemPriceEther = $("#itemprice").val();
+                const itemPriceWei = web3.utils.toWei(itemPriceEther.toString(), 'Ether');
+                const accounts = await web3.eth.getAccounts();
+                const sellerAccount = accounts[0];
+
+                try {
+                    await web3.eth.personal.unlockAccount(sellerAccount, '', 1000);
+                } catch (error) {
+                    console.log(error);
+                }
+                const networkId = await web3.eth.net.getId();
+                const ethbayJson = await $.getJSON('../src/abis/Ethbay.json')
+                const deployedEthbay = new web3.eth.Contract(
+                    ethbayJson.abi,
+                    ethbayJson.networks[networkId].address
+                );
+                console.log(deployedEthbay)
+
+                //Estimate the gas consumption
+                const gasAmount = await deployedEthbay.methods.createItem(itemName, itemPriceWei).estimateGas({from: sellerAccount})
+                try {
+                    const receipt = await deployedEthbay.methods.createItem(itemName, itemPriceWei).send({from: sellerAccount, gas: gasAmount})
+                    console.log("Receipt");
+                    console.log(receipt);
+                    const myItemId = receipt.events.ItemReady.returnValues.itemId.toString();
+                    const myItemName = receipt.events.ItemReady.returnValues.itemName;
+                    const message = "Item " + myItemName + " (ID: " + myItemId + ") is added successfully.";
+                    console.log(message);
+                    alert(message);
+                    /*
+                    * This is the syntax how do you want to subscribte the event ItemSold.
+                    * The `filter` is optional. You can use filter to select only the events with specific indexed values.
+                    * The `fromBlock` is also optional. It could be used to get some historical events. 
+                    *  If `fromBlock` is omitted, it has default value 'lastest', meaning ignore all historical events (before latest block) 
+                    *  If `fromBlock` is given, all historical events from the given block number to the latest block will be return when called first time.
+                    * In either case, a new event will always be caught during the current session.
+                    */ 
+                    await deployedEthbay.events.ItemSold(
+                        { filter: { itemId: [ myItemId ] } },
+                        (error, result) => {
+                            if (!error) {
+                                console.log("Event Result");
+                                console.log(result);
+                                const eventItemId = result.returnValues.itemId;
+                                const eventItemOwner = result.returnValues.itemOwner;
+                                const eventItemName = result.returnValues.itemName;
+                                const eventItemPrice = result.returnValues.itemPrice.toString();
+                                const eventMessage = "Item " + eventItemName + " (ID: " + eventItemId + ") has been sold for " + web3.utils.fromWei(eventItemPrice) + " Ether. \nNew owner: " + eventItemOwner;
+                                console.log(eventMessage);
+                                alert(eventMessage);
+                            }
+                        }
+                    );
+
+                } catch (error) {
+                    console.log('Transaction Error: ');
+                    console.log(error);
+                }
+            });
+        </script>
+    </body>
+</html>
