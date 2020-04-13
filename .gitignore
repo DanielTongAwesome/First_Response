@@ -2,14 +2,14 @@
 .DS_Store
 ~/
 
-EthbayDappHtmlAndEvents/node_modules
-EthbayDappHtmlAndEvents/src/abis
+Dapp/EthbayDappHtmlAndEvents/node_modules
+Dapp/thbayDappHtmlAndEvents/src/abis
 
-EthbayDappReact/node_modules
-EthbayDappReact/src/abis
+Dapp/EthbayDappReact/node_modules
+Dapp/EthbayDappReact/src/abis
 
-Smart_City_Contract/node_modules
-Smart_City_Contract/src/abis
+Dapp/Smart_City_Contract/node_modules
+Dapp/Smart_City_Contract/src/abis
 
 LiDARScripts/output.avi
 
