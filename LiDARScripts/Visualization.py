@@ -455,7 +455,7 @@ if __name__ == "__main__":
                             tuple.append(x2)
                             jsonObjects.append(tuple)
                             jsonObject = json.dumps(jsonObjects, indent = 4)
-                            with open("../Smart-City-5G-Hackathon/Smart_City_Contract/html/incidents.json", "w") as outfile:
+                            with open("../Dapp/Smart_City_Contract/html/incidents.json", "w") as outfile:
                                 outfile.write(jsonObject)
                         # elif distance >= 5 and distance < 10:
                         #     print("5-10m apart")
