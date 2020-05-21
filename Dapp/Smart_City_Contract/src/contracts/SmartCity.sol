@@ -15,7 +15,7 @@ contract SmartCity {
     enum warningFlag { No_Warning, Near_Misses, Potential_Pedestrian_Injuries, Car_Crash}
 
     struct BroadcastEvent {
-        uint256 eventID;    // tract event number
+        uint256 eventID;    // tract event number`
         uint256 timestamp;  // timestamp
         uint256 objectID;   // tract the object
         uint256 objectXCor;     // object x corodinates
